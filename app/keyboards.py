@@ -87,15 +87,15 @@ edit_replace_translation = InlineKeyboardMarkup(inline_keyboard=[
 
 async def test_which_way(current_language):
     keyboard = InlineKeyboardBuilder()
-    keyboard.add(InlineKeyboardButton(text=f'{current_language} -> русский', callback_data='foreign_rus'))
-    keyboard.add(InlineKeyboardButton(text=f'русский -> {current_language}', callback_data='rus_foreign'))
+    keyboard.add(InlineKeyboardButton(text=f"{current_language} -> русский", callback_data='foreign_rus'))
+    keyboard.add(InlineKeyboardButton(text=f"русский -> {current_language}", callback_data='rus_foreign'))
     keyboard.add(InlineKeyboardButton(text='Выход', callback_data='finish_adding'))
     return keyboard.adjust(2).as_markup()
 
 async def editing_card(steps):
     keyboard = InlineKeyboardBuilder()
     for callback, step in steps:
-        keyboard.add(InlineKeyboardButton(text=step, callback_data=f'inputedit:{callback}'))
+        keyboard.add(InlineKeyboardButton(text=step, callback_data=f"inputedit:{callback}"))
     return keyboard.adjust().as_markup()
 
 

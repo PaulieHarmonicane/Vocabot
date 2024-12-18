@@ -94,7 +94,7 @@ async def all_langs_list(message: Message, state: FSMContext):
 async def add_language(callback: CallbackQuery, state: FSMContext):
     print(callback.data)
     await rq.list_lang(callback.data.split("_")[1], callback.from_user.id)
-    await callback.message.answer(text=f'Вы добавили {callback.data.split('_')[1]}!', reply_markup=await kb.reply_langs(callback.from_user.id))
+    await callback.message.answer(text=f"Вы добавили {callback.data.split('_')[1]}!", reply_markup=await kb.reply_langs(callback.from_user.id))
     await state.set_state(Flow.language)
 
 @router.message(Flow.language, F.text.casefold() == '中文')
@@ -169,7 +169,7 @@ async def add_more_meanings(callback: CallbackQuery, state: FSMContext):
     current = await state.get_data()
     current_translation = await rq.translation_data(current['language'], current['add_word'])
     await state.set_state(Flow.wait)
-    await callback.message.edit_text(text=f'Язык: {current['language']} \nСлово: {current['add_word']} \nПеревод: {current_translation}', reply_markup = kb.edit_replace_translation)
+    await callback.message.edit_text(text=f"Язык: {current['language']} \nСлово: {current['add_word']} \nПеревод: {current_translation}", reply_markup = kb.edit_replace_translation)
 
 @router.callback_query(F.data == 'edit_translation')
 async def add_translations(callback: CallbackQuery, state: FSMContext):
@@ -209,10 +209,10 @@ async def adding_translation(message: Message, state: FSMContext):
     cd = await state.get_data()
     print(cd)
     if await rq.check_if_need_transcr(cd['language']) == 't':
-        f_text = f'Слово: {cd['add_word']}, \nТранскрипция: {cd['add_transcription']}, \nПеревод: {cd['add_translation']} \n\n Добавить слово?'   
+        f_text = f"Слово: {cd['add_word']}, \nТранскрипция: {cd['add_transcription']}, \nПеревод: {cd['add_translation']} \n\n Добавить слово?"   
         await message.answer(text=f_text, reply_markup=kb.approve_button)
     elif await rq.check_if_need_transcr(cd['language']) == 'nt':
-        f_text = f'Язык: {cd['language']}, \nСлово: {cd['add_word']}, \nПеревод: {cd['add_translation']} \n\n Добавить слово?'   
+        f_text = f"Язык: {cd['language']}, \nСлово: {cd['add_word']}, \nПеревод: {cd['add_translation']} \n\n Добавить слово?"   
         await message.answer(text=f_text, reply_markup=kb.approve_button)
     
 @router.callback_query(F.data == 'approve_word')  
@@ -377,7 +377,7 @@ async def question_st(callback: CallbackQuery, state:FSMContext):
     else:
         phrases = ["Главное не оценки, а знания!", "Я знаю только то, что ничего не знаю.", "Любая похвала будет тебя недооценивать", "Не ошибается тот, кто не учится."]
     if cd['test_cardset'] == []:
-        await callback.message.answer(text=f'Твой результат: {cd['test_counter']}/{cd['test_wn']} \n{random.choice(phrases)}', reply_markup=kb.finish_test)
+        await callback.message.answer(text=f"Твой результат: {cd['test_counter']}/{cd['test_wn']} \n{random.choice(phrases)}", reply_markup=kb.finish_test)
     else:
         await state.set_state(Flow.test_answer)
         if cd['card_test'] == 'rus_foreign':
@@ -431,25 +431,27 @@ async def answer_st(message: Message, state: FSMContext):
                 await message.answer_photo(photo)
                 await message.answer(text=f'Неверно!', reply_markup = kb.continue_test)
     elif cd['card_test'] == 'foreign_rus':
-        if re.findall(f'.*{message.text.casefold()}.*', current_card[2].casefold()):
-            await state.update_data(test_counter=cd['test_counter']+1)
-            if await rq.check_if_need_transcr(cd['language']) == 't':
+        if await rq.check_if_need_transcr(cd['language']) == 't':
+            if re.findall(f'.*{message.text.casefold()}.*', current_card[2].casefold()):
+                await state.update_data(test_counter=cd['test_counter']+1)
                 flashcard_img = await repres.create_flashcard_t_answer(word=current_card[0], transcription=current_card[1], translation=current_card[2], need_transcription=await rq.check_if_need_transcr(cd['language']), c_config='correct', c_lang=cd['language'])
                 photo = BufferedInputFile(flashcard_img, filename='answer.png')
                 await message.answer_photo(photo)
                 await message.answer(text=f'Верно!', reply_markup = kb.continue_test)
-            elif await rq.check_if_need_transcr(cd['language']) == 'nt':
-                flashcard_img = await repres.create_flashcard_t_answer(word=current_card[0], translation=current_card[1], need_transcription=await rq.check_if_need_transcr(cd['language']), c_config='correct', c_lang=cd['language'])
-                photo = BufferedInputFile(flashcard_img, filename='answer.png')
-                await message.answer_photo(photo)
-                await message.answer(text=f'Верно', reply_markup = kb.continue_test)
-        else:
-            if await rq.check_if_need_transcr(cd['language']) == 't':
+            else:
                 flashcard_img = await repres.create_flashcard_t_answer(word=current_card[0], transcription=current_card[1], translation=current_card[2], need_transcription=await rq.check_if_need_transcr(cd['language']), c_config='wrong', c_lang=cd['language'])
                 photo = BufferedInputFile(flashcard_img, filename='answer.png')
                 await message.answer_photo(photo)
                 await message.answer(text=f'Неверно!', reply_markup = kb.continue_test)
-            elif await rq.check_if_need_transcr(cd['language']) == 'nt':
+
+        elif await rq.check_if_need_transcr(cd['language']) == 'nt':
+            if re.findall(f'.*{message.text.casefold()}.*', current_card[1].casefold()):
+                await state.update_data(test_counter=cd['test_counter']+1)
+                flashcard_img = await repres.create_flashcard_t_answer(word=current_card[0], translation=current_card[1], need_transcription=await rq.check_if_need_transcr(cd['language']), c_config='correct', c_lang=cd['language'])
+                photo = BufferedInputFile(flashcard_img, filename='answer.png')
+                await message.answer_photo(photo)
+                await message.answer(text=f'Верно', reply_markup = kb.continue_test)
+            else:
                 flashcard_img = await repres.create_flashcard_t_answer(word=current_card[0], translation=current_card[1], need_transcription=await rq.check_if_need_transcr(cd['language']), c_config='wrong', c_lang=cd['language'])
                 photo = BufferedInputFile(flashcard_img, filename='answer.png')
                 await message.answer_photo(photo)
