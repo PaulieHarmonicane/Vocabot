@@ -19,6 +19,7 @@ if __name__ == '__main__': #makes it run only if we run this exact file, but not
     #loprint (rq.get_languages())ssgging.basicConfig(level=logging.INFO) #use it only whileßß debugging``
     try:
         asyncio.run(main())
+        
     except KeyboardInterrupt:
         print ('Exit!')  #That's how we build the exception handlers
 
