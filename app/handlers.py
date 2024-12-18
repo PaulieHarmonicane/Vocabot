@@ -75,7 +75,7 @@ async def reg_fin(message: Message, state :FSMContext):
     data = await state.get_data()
     await rq.set_user(data['tg_id'], data['name'])
     await state.clear()
-    await message.answer(f"Регистрация завершена! \nИмя: {data["name"]} \n\nДобро пожаловать! \n\nДобавьте язык!", reply_markup=await kb.reply_langs(message.from_user.id))
+    await message.answer(f"Регистрация завершена! \nИмя: {data['name']} \n\nДобро пожаловать! \n\nДобавьте язык!", reply_markup=await kb.reply_langs(message.from_user.id))
     await state.set_state(Flow.tg_id)
     await state.update_data(tg_id=message.from_user.id)
     await state.set_state(Flow.language)
