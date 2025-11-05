@@ -1,2 +1,3 @@
 # Vocabot. 
-My first project, for practical use.
+Tg-bot, for learning vocabulary. 
+
